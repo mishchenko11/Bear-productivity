@@ -1,0 +1,18 @@
+# Xcode user-specific settings and workspace state
+**/xcuserdata/
+*.xcuserstate
+
+# macOS metadata
+.DS_Store
+
+# Xcode build products and indexes
+DerivedData/
+build/
+*.hmap
+*.ipa
+*.dSYM
+*.dSYM.zip
+
+# Swift Package Manager build artifacts
+.build/
+.swiftpm/
