@@ -94,14 +94,21 @@ struct AddTaskView: View {
             second: 0,
             of: day
         ) : nil
-        let task = TaskItem(title: trimmedTitle, date: day, time: scheduledTime)
-        modelContext.insert(task)
+        let task: TaskItem
+        if let taskToEdit {
+            task = taskToEdit
+            task.title = trimmedTitle
+            task.date = day
+            task.time = scheduledTime
+        } else {
+            task = TaskItem(title: trimmedTitle, date: day, time: scheduledTime)
+            modelContext.insert(task)
+        }
 
         do {
             try modelContext.save()
             dismiss()
         } catch {
-            modelContext.delete(task)
             showingSaveError = true
         }
     }

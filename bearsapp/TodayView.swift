@@ -17,10 +17,11 @@ struct TodayView: View {
     @State private var showDeleteAlert = false
     @State private var taskToDelete: TaskItem?
     @State private var taskToEdit: TaskItem?
+    @State private var selectedDate = Calendar.current.startOfDay(for: Date())
     
     private var todayTasks: [TaskItem] {
         tasks.filter {
-            Calendar.current.isDate($0.date, inSameDayAs: currentDate)
+            Calendar.current.isDate($0.date, inSameDayAs: selectedDate)
         }.sorted {
             ($0.time ?? $0.date) < ($1.time ?? $1.date)
         }
@@ -47,6 +48,28 @@ struct TodayView: View {
                 .year()
         )
     }
+
+    private var selectedDayName: String {
+        if Calendar.current.isDateInToday(selectedDate) {
+            return "Today"
+        }
+        return selectedDate.formatted(.dateTime.weekday(.wide))
+    }
+    
+    private var weekDates: [Date] {
+        let calendar = Calendar.current
+        let weekday = calendar.component(.weekday, from: selectedDate)
+        let daysFromMonday = (weekday + 5) % 7
+        let monday = calendar.date(
+            byAdding: .day,
+            value: -daysFromMonday,
+            to: selectedDate
+        )!
+        
+        return (0..<7).compactMap { dayOffset in
+            calendar.date(byAdding: .day, value: dayOffset, to: monday)
+        }
+    }
     
     var body: some View {
         List {
@@ -60,9 +83,43 @@ struct TodayView: View {
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                 }
-                
+                HStack(spacing: 8) {
+                    ForEach(weekDates, id: \.self) { day in
+                        let isSelected = Calendar.current.isDate(
+                            day,
+                            inSameDayAs: selectedDate
+                        )
+                        let isToday = Calendar.current.isDate(
+                            day,
+                            inSameDayAs: currentDate
+                        )
+
+                        Button {
+                            selectedDate = day
+                        } label: {
+                            VStack(spacing: 8) {
+                                Text(day.formatted(.dateTime.weekday(.abbreviated)))
+                                Text(day.formatted(.dateTime.day()))
+                            }
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 12)
+                            .background(
+                                isSelected
+                                    ? (isToday
+                                        ? Color("brown")
+                                        : Color("brown").opacity(0.18))
+                                    : Color.clear,
+                                in: RoundedRectangle(cornerRadius: 12)
+                            )
+                            .foregroundStyle(
+                                isSelected && isToday ? Color.white : Color("brown")
+                            )
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
                 HStack {
-                    Text("Today's Tasks")
+                    Text(selectedDayName == "Today" ? "Today's Tasks" : "\(selectedDayName)'s Tasks")
                         .font(.title2.bold())
                         .accessibilityAddTraits(.isHeader)
                     
@@ -82,7 +139,7 @@ struct TodayView: View {
                 }
                 Group {
                     if todayTasks.isEmpty {
-                        Text("No tasks for today. Tap + to add one.")
+                        Text("No tasks for \(selectedDayName.lowercased()). Tap + to add one.")
                             .foregroundStyle(.secondary)
                     }
                     ForEach(todayTasks) { task in
@@ -124,13 +181,14 @@ struct TodayView: View {
                                 Label("Delete", systemImage: "trash")
                             }
                             .tint(.red)
+
+                            Button {
+                                taskToEdit = task
+                            } label: {
+                                Label("Edit", systemImage: "pencil")
+                            }
+                            .tint(Color("brown"))
                         }
-                        Button {
-                            taskToEdit = task
-                        } label: {
-                            Label("Edit", systemImage: "pencil")
-                        }
-                        .tint(Color("brown"))
                     }
                 }
             }
@@ -169,8 +227,18 @@ struct TodayView: View {
                 }
             }
         }
-        .sheet(isPresented: $showAddTask) {
-            AddTaskView()
+        .sheet(
+            isPresented: Binding(
+                get: { showAddTask || taskToEdit != nil },
+                set: { isPresented in
+                    if !isPresented {
+                        showAddTask = false
+                        taskToEdit = nil
+                    }
+                }
+            )
+        ) {
+            AddTaskView(taskToEdit: taskToEdit)
         }
     }
 }
