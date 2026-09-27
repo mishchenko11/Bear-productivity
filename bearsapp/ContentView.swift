@@ -17,7 +17,7 @@ struct ContentView: View {
             Tab("Calendar", systemImage: "calendar") {
                 CalendarView()
             }
-            Tab("Goals", systemImage: "pawprint") {
+            Tab("Goals", systemImage: "target") {
                 GoalView()
             }
         }
