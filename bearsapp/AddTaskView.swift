@@ -15,8 +15,15 @@ struct AddTaskView: View {
     @State private var date = Date()
     @State private var time = Date()
     @State private var includeTime = false
+    @State private var repeatRule = "never"
     @State private var showingSaveError = false
     private let taskToEdit: TaskItem?
+    private let repeatOptions = [
+        ("never", "Does not repeat"),
+        ("daily", "Every day"),
+        ("weekly", "Every week"),
+        ("monthly", "Every month")
+    ]
 
     private var isTitleEmpty: Bool {
         title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
@@ -29,6 +36,7 @@ struct AddTaskView: View {
         _date = State(initialValue: taskToEdit?.date ?? Date())
         _time = State(initialValue: taskToEdit?.time ?? Date())
         _includeTime = State(initialValue: taskToEdit?.time != nil)
+        _repeatRule = State(initialValue: taskToEdit?.repeatRule ?? "never")
     }
     
     var body: some View {
@@ -40,6 +48,12 @@ struct AddTaskView: View {
                 "Date",
                 selection: $date,
                 displayedComponents: .date)
+
+            Picker("Repeat", selection: $repeatRule) {
+                ForEach(repeatOptions, id: \.0) { option in
+                    Text(option.1).tag(option.0)
+                }
+            }
             
             Toggle("Add time", isOn: $includeTime)
 
@@ -100,8 +114,14 @@ struct AddTaskView: View {
             task.title = trimmedTitle
             task.date = day
             task.time = scheduledTime
+            task.repeatRule = repeatRule
         } else {
-            task = TaskItem(title: trimmedTitle, date: day, time: scheduledTime)
+            task = TaskItem(
+                title: trimmedTitle,
+                date: day,
+                time: scheduledTime,
+                repeatRule: repeatRule
+            )
             modelContext.insert(task)
         }
 

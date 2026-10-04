@@ -43,10 +43,7 @@ struct GoalView: View {
                 }
 
                 ForEach(visibleGoals) { goal in
-                    GoalRow(goal: goal, onEdit: {
-                        goalToEdit = goal
-                        showingGoalForm = true
-                    })
+                    GoalRow(goal: goal)
                     .swipeActions(edge: .trailing, allowsFullSwipe: false) {
                         Button {
                             goalToDelete = goal
@@ -143,7 +140,6 @@ struct GoalView: View {
 
 private struct GoalRow: View {
     @Bindable var goal: GoalItem
-    let onEdit: () -> Void
 
     private var goalColor: Color {
         Color(goal.colorName ?? "orange")

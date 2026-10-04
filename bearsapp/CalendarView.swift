@@ -9,12 +9,13 @@ import SwiftUI
 import SwiftData
 
 struct CalendarView: View {
+    @Environment(\.modelContext) private var modelContext
     @State private var selectedDate = Date()
     @Query private var tasks: [TaskItem]
     
     private var selectedDayTasks: [TaskItem] {
         tasks.filter {
-            Calendar.current.isDate($0.date, inSameDayAs: selectedDate)
+            $0.occurs(on: selectedDate)
         }.sorted {
             ($0.time ?? $0.date) < ($1.time ?? $1.date)
         }
@@ -40,13 +41,17 @@ struct CalendarView: View {
                 ForEach(selectedDayTasks) { task in
                     HStack() {
                         Button {
-                            task.isCompleted.toggle()
+                                task.setCompleted(
+                                    !task.isCompleted(on: selectedDate),
+                                    on: selectedDate,
+                                    in: modelContext
+                                )
                         } label: {
-                            Image(systemName: task.isCompleted
+                            Image(systemName: task.isCompleted(on: selectedDate)
                                   ? "checkmark.square.fill" : "square")
                             .symbolRenderingMode(.palette)
                             .foregroundStyle(
-                                task.isCompleted ? Color.white : Color("brown"),
+                                task.isCompleted(on: selectedDate) ? Color.white : Color("brown"),
                                 Color("brown")
                             )
                             .font(.system(size: 26, weight: .regular))
@@ -54,12 +59,12 @@ struct CalendarView: View {
                             .contentShape(Rectangle())
                         }
                         .buttonStyle(.plain)
-                        .accessibilityLabel(task.isCompleted ? "Mark incomplete: \(task.title)" : "Complete: \(task.title)")
-                        .accessibilityValue(task.isCompleted ? "Completed" : "Incomplete")
+                        .accessibilityLabel(task.isCompleted(on: selectedDate) ? "Mark incomplete: \(task.title)" : "Complete: \(task.title)")
+                        .accessibilityValue(task.isCompleted(on: selectedDate) ? "Completed" : "Incomplete")
                         Text(task.title)
                             .font(.headline)
-                            .strikethrough(task.isCompleted)
-                            .foregroundStyle(task.isCompleted ? Color("brown") : Color.primary)
+                            .strikethrough(task.isCompleted(on: selectedDate))
+                            .foregroundStyle(task.isCompleted(on: selectedDate) ? Color("brown") : Color.primary)
                         
                         Spacer()
                         
