@@ -19,6 +19,9 @@ struct ContentView: View {
             Tab("Goals", systemImage: "target") {
                 GoalView()
             }
+            Tab("Settings", systemImage: "gear") {
+                SettingsView()
+            }
         }
     }
 }

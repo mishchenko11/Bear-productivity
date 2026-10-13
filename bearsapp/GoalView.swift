@@ -3,6 +3,8 @@ import SwiftData
 
 struct GoalView: View {
     @Environment(\.modelContext) private var modelContext
+    @AppStorage("taskRemindersEnabled") private var taskRemindersEnabled = false
+    @AppStorage("goalRemindersEnabled") private var goalRemindersEnabled = false
     @Query private var goals: [GoalItem]
     @State private var showingGoalForm = false
     @State private var goalToEdit: GoalItem?
@@ -43,7 +45,7 @@ struct GoalView: View {
                 }
 
                 ForEach(visibleGoals) { goal in
-                    GoalRow(goal: goal)
+                    GoalRow(goal: goal, onProgressChange: refreshRemindersAfterGoalChange)
                     .swipeActions(edge: .trailing, allowsFullSwipe: false) {
                         Button {
                             goalToDelete = goal
@@ -105,6 +107,7 @@ struct GoalView: View {
                         withAnimation {
                             modelContext.delete(goalToDelete)
                         }
+                        refreshRemindersAfterGoalChange()
                     }
                     goalToDelete = nil
                 }
@@ -136,10 +139,23 @@ struct GoalView: View {
         .buttonStyle(.plain)
     }
 
+    @MainActor
+    private func refreshRemindersAfterGoalChange() {
+        try? modelContext.save()
+        Task {
+            await TaskReminderManager.refresh(
+                in: modelContext,
+                tasksEnabled: taskRemindersEnabled,
+                goalsEnabled: goalRemindersEnabled
+            )
+        }
+    }
+
 }
 
 private struct GoalRow: View {
     @Bindable var goal: GoalItem
+    let onProgressChange: () -> Void
 
     private var goalColor: Color {
         Color(goal.colorName ?? "orange")
@@ -173,7 +189,9 @@ private struct GoalRow: View {
                 }
                 Spacer()
                 Button {
-                    if goal.currentCount > 0 { goal.currentCount -= 1 }
+                    guard goal.currentCount > 0 else { return }
+                    goal.currentCount -= 1
+                    onProgressChange()
                 } label: {
                     Image(systemName: "minus.circle")
                 }
@@ -181,7 +199,9 @@ private struct GoalRow: View {
                 .accessibilityLabel("Decrease progress")
 
                 Button {
-                    if goal.currentCount < goal.targetCount { goal.currentCount += 1 }
+                    guard goal.currentCount < goal.targetCount else { return }
+                    goal.currentCount += 1
+                    onProgressChange()
                 } label: {
                     Image(systemName: "plus.circle.fill")
                 }

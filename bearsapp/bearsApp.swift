@@ -12,6 +12,11 @@ import SwiftData
 struct bearsApp: App {
     @AppStorage("hasCompletedWelcome")
     private var hasCompletedWelcome = false
+    @AppStorage("taskRemindersEnabled")
+    private var taskRemindersEnabled = false
+    @AppStorage("goalRemindersEnabled")
+    private var goalRemindersEnabled = false
+    @Environment(\.scenePhase) private var scenePhase
     
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
@@ -32,6 +37,15 @@ struct bearsApp: App {
         WindowGroup {
             if hasCompletedWelcome {
                 ContentView()
+                    .task {
+                        await refreshReminders()
+                    }
+                    .onChange(of: scenePhase) { _, phase in
+                        guard phase == .active else { return }
+                        Task {
+                            await refreshReminders()
+                        }
+                    }
             } else {
                 WelcomeView {
                     hasCompletedWelcome = true
@@ -39,5 +53,14 @@ struct bearsApp: App {
             }
         }
         .modelContainer(sharedModelContainer)
+    }
+
+    @MainActor
+    private func refreshReminders() async {
+        await TaskReminderManager.refresh(
+            in: sharedModelContainer.mainContext,
+            tasksEnabled: taskRemindersEnabled,
+            goalsEnabled: goalRemindersEnabled
+        )
     }
 }

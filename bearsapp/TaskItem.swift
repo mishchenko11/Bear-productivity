@@ -15,6 +15,8 @@ final class TaskItem {
     var time: Date?
     var isCompleted: Bool
     var repeatRule: String?
+    // Kept for compatibility with existing SwiftData stores; reminders now use fixed app rules.
+    var reminderMinutesBefore: Int?
     @Relationship(deleteRule: .cascade, inverse: \TaskCompletion.task)
     var completions: [TaskCompletion] = []
  
@@ -22,13 +24,15 @@ final class TaskItem {
          date: Date,
          time: Date? = nil,
          isCompleted: Bool = false,
-         repeatRule: String? = "never"
+         repeatRule: String? = "never",
+         reminderMinutesBefore: Int? = nil
     ) {
         self.title = title
         self.date = date
         self.time = time
         self.isCompleted = isCompleted
         self.repeatRule = repeatRule
+        self.reminderMinutesBefore = reminderMinutesBefore
     }
 
     func occurs(on day: Date, calendar: Calendar = .current) -> Bool {

@@ -11,6 +11,8 @@ import SwiftData
 struct TodayView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.scenePhase) private var scenePhase
+    @AppStorage("taskRemindersEnabled") private var taskRemindersEnabled = false
+    @AppStorage("goalRemindersEnabled") private var goalRemindersEnabled = false
     @State private var currentDate = Date()
     @State private var showAddTask = false
     @Query private var tasks: [TaskItem]
@@ -150,6 +152,14 @@ struct TodayView: View {
                                     on: selectedDate,
                                     in: modelContext
                                 )
+                                try? modelContext.save()
+                                Task {
+                                    await TaskReminderManager.refresh(
+                                        in: modelContext,
+                                        tasksEnabled: taskRemindersEnabled,
+                                        goalsEnabled: goalRemindersEnabled
+                                    )
+                                }
                             } label: {
                                 Image(systemName: task.isCompleted(on: selectedDate)
                                       ? "checkmark.square.fill" : "square")
@@ -208,6 +218,14 @@ struct TodayView: View {
                 guard let task = taskToDelete else { return }
                 withAnimation {
                     modelContext.delete(task)
+                }
+                try? modelContext.save()
+                Task {
+                    await TaskReminderManager.refresh(
+                        in: modelContext,
+                        tasksEnabled: taskRemindersEnabled,
+                        goalsEnabled: goalRemindersEnabled
+                    )
                 }
                 taskToDelete = nil
             }

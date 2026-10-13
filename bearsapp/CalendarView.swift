@@ -10,6 +10,8 @@ import SwiftData
 
 struct CalendarView: View {
     @Environment(\.modelContext) private var modelContext
+    @AppStorage("taskRemindersEnabled") private var taskRemindersEnabled = false
+    @AppStorage("goalRemindersEnabled") private var goalRemindersEnabled = false
     @State private var selectedDate = Date()
     @Query private var tasks: [TaskItem]
     
@@ -46,6 +48,14 @@ struct CalendarView: View {
                                     on: selectedDate,
                                     in: modelContext
                                 )
+                                try? modelContext.save()
+                                Task {
+                                    await TaskReminderManager.refresh(
+                                        in: modelContext,
+                                        tasksEnabled: taskRemindersEnabled,
+                                        goalsEnabled: goalRemindersEnabled
+                                    )
+                                }
                         } label: {
                             Image(systemName: task.isCompleted(on: selectedDate)
                                   ? "checkmark.square.fill" : "square")

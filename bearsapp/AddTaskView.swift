@@ -11,6 +11,8 @@ import SwiftData
 struct AddTaskView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
+    @AppStorage("taskRemindersEnabled") private var taskRemindersEnabled = false
+    @AppStorage("goalRemindersEnabled") private var goalRemindersEnabled = false
     @State private var title = ""
     @State private var date = Date()
     @State private var time = Date()
@@ -127,7 +129,14 @@ struct AddTaskView: View {
 
         do {
             try modelContext.save()
-            dismiss()
+            Task {
+                await TaskReminderManager.refresh(
+                    in: modelContext,
+                    tasksEnabled: taskRemindersEnabled,
+                    goalsEnabled: goalRemindersEnabled
+                )
+                dismiss()
+            }
         } catch {
             showingSaveError = true
         }
