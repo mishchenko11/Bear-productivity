@@ -141,8 +141,19 @@ struct TodayView: View {
                 }
                 Group {
                     if todayTasks.isEmpty {
-                        Text("No tasks for \(selectedDayName.lowercased()). Tap + to add one.")
-                            .foregroundStyle(.secondary)
+                        VStack(spacing: 16) {
+                            Image("shibabox")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 220, height: 220)
+                                .accessibilityHidden(true)
+
+                            Text("No tasks for \(selectedDayName.lowercased()). Tap + to add one.")
+                                .foregroundStyle(.secondary)
+                                .multilineTextAlignment(.center)
+                        }
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 340, alignment: .center)
                     }
                     ForEach(todayTasks) { task in
                         HStack() {
@@ -212,7 +223,7 @@ struct TodayView: View {
         }
         .listStyle(.plain)
         .scrollContentBackground(.hidden)
-        .background(Color(.background))
+
         .alert("Are you sure you want to delete this task?", isPresented: $showDeleteAlert) {
             Button("Yes", role: .destructive) {
                 guard let task = taskToDelete else { return }

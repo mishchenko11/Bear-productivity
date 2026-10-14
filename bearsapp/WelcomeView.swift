@@ -12,7 +12,7 @@ struct WelcomeView: View {
     
     var body: some View {
         VStack(spacing: 16) {
-            Text("Beary\nProductive")
+            Text("ShibaDay")
                 .font(.system(
                     size: 46,
                     weight: .heavy,
@@ -22,10 +22,6 @@ struct WelcomeView: View {
                 .foregroundStyle(Color("brown"))
                 .accessibilityAddTraits(.isHeader)
             
-            Text("Small steps\nfor a brighter you")
-                .font(.system(size: 18, design: .rounded))
-                .multilineTextAlignment(.center)
-                .foregroundStyle(Color("brown"))
             
             Spacer()
             

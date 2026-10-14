@@ -89,7 +89,6 @@ struct CalendarView: View {
             .padding(.vertical, 16)
         }
         .tint(Color("brown"))
-        .background(Color("background"))
     }
 }
 #Preview {

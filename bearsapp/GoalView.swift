@@ -29,7 +29,13 @@ struct GoalView: View {
                 .listRowSeparator(.hidden)
 
                 if visibleGoals.isEmpty {
-                    VStack(spacing: 8) {
+                    VStack(spacing: 14) {
+                        Image("shibabox")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 220, height: 220)
+                            .accessibilityHidden(true)
+
                         Text(showingCompleted ? "No Completed Goals" : "No Active Goals")
                             .font(.headline)
                         Text(showingCompleted
@@ -37,9 +43,11 @@ struct GoalView: View {
                             : "Create your first goal with the + button above.")
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
+                            .multilineTextAlignment(.center)
                     }
                     .frame(maxWidth: .infinity)
-                    .padding(.vertical, 28)
+                    .frame(height: 360, alignment: .center)
+                    .padding(.horizontal, 12)
                     .listRowBackground(Color.clear)
                     .listRowSeparator(.hidden)
                 }
@@ -70,7 +78,6 @@ struct GoalView: View {
             }
             .listStyle(.plain)
             .scrollContentBackground(.hidden)
-            .background(Color("background"))
             .safeAreaInset(edge: .top, spacing: 0) {
                 HStack {
                     Text("My Goals")
@@ -93,7 +100,6 @@ struct GoalView: View {
                 }
                 .padding(.horizontal, 20)
                 .padding(.vertical, 10)
-                .background(Color("background"))
             }
             .toolbar(.hidden, for: .navigationBar)
             .sheet(isPresented: $showingGoalForm, onDismiss: {
@@ -158,7 +164,7 @@ private struct GoalRow: View {
     let onProgressChange: () -> Void
 
     private var goalColor: Color {
-        Color(goal.colorName ?? "orange")
+        Color("green")
     }
 
     var body: some View {

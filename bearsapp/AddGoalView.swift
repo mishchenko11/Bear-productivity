@@ -27,27 +27,60 @@ struct AddGoalView: View {
 
     var body: some View {
         NavigationStack {
-            Form {
-                TextField("What do you want to achieve?", text: $title)
+            ZStack {
+                Color.white.ignoresSafeArea()
 
-                Stepper("Target: \(targetCount)", value: $targetCount, in: 1...100)
+                ScrollView {
+                    VStack(spacing: 0) {
+                        TextField("What do you want to achieve?", text: $title)
+                            .padding(16)
 
-                Picker("Period", selection: $period) {
-                    ForEach(periods, id: \.self) { item in
-                        Text(item.capitalized).tag(item)
+                        Divider()
+                            .padding(.leading, 16)
+
+                        Stepper("Target: \(targetCount)", value: $targetCount, in: 1...100)
+                            .padding(16)
+
+                        Divider()
+                            .padding(.leading, 16)
+
+                        Picker("Period", selection: $period) {
+                            ForEach(periods, id: \.self) { item in
+                                Text(item.capitalized).tag(item)
+                            }
+                        }
+                        .pickerStyle(.menu)
+                        .padding(16)
                     }
+                    .background(Color.white, in: RoundedRectangle(cornerRadius: 18))
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 18)
+                            .stroke(Color("brown").opacity(0.18), lineWidth: 1)
+                    }
+                    .shadow(color: .black.opacity(0.08), radius: 12, x: 0, y: 5)
+                    .padding(.horizontal, 20)
+                    .padding(.top, 24)
+                    .padding(.bottom, 16)
                 }
             }
-            .scrollContentBackground(.hidden)
-            .background(Color("background"))
+            .safeAreaInset(edge: .bottom) {
+                Button(action: saveGoal) {
+                    Text(goalToEdit == nil ? "Save Goal" : "Save Changes")
+                        .font(.system(size: 18, weight: .semibold, design: .rounded))
+                        .foregroundStyle(.white)
+                        .frame(maxWidth: .infinity)
+                        .frame(minHeight: 54)
+                        .background(Color("brown"), in: Capsule())
+                }
+                .buttonStyle(.plain)
+                .disabled(isTitleEmpty)
+                .opacity(isTitleEmpty ? 0.5 : 1)
+                .padding(.horizontal, 32)
+                .padding(.top, 12)
+                .padding(.bottom, 20)
+            }
             .navigationTitle(goalToEdit == nil ? "Add Goal" : "Edit Goal")
             .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button("Save", action: saveGoal)
-                        .disabled(isTitleEmpty)
-                }
-            }
             .tint(Color("brown"))
             .alert("Couldn't save goal", isPresented: $showingSaveError) {
                 Button("OK", role: .cancel) { }
@@ -68,8 +101,8 @@ struct AddGoalView: View {
             goal.targetCount = targetCount
             goal.period = period
         } else {
-            let goalColors = ["green", "orange", "purple"]
-            let randomColor = goalColors.randomElement() ?? "orange"
+            let goalColors = ["green", "purple"]
+            let randomColor = goalColors.randomElement() ?? "purple"
             goal = GoalItem(
                 title: trimmedTitle,
                 targetCount: targetCount,

@@ -43,57 +43,90 @@ struct AddTaskView: View {
     
     var body: some View {
         NavigationStack {
-          Form {
-            TextField("Task title", text: $title)
-            
-            DatePicker(
-                "Date",
-                selection: $date,
-                displayedComponents: .date)
+            ZStack {
+                Color.white.ignoresSafeArea()
 
-            Picker("Repeat", selection: $repeatRule) {
-                ForEach(repeatOptions, id: \.0) { option in
-                    Text(option.1).tag(option.0)
+                ScrollView {
+                    VStack(spacing: 0) {
+                        TextField("Task title", text: $title)
+                            .padding(16)
+
+                        Divider()
+                            .padding(.leading, 16)
+
+                        DatePicker(
+                            "Date",
+                            selection: $date,
+                            displayedComponents: .date
+                        )
+                        .datePickerStyle(.compact)
+                        .padding(16)
+
+                        Divider()
+                            .padding(.leading, 16)
+
+                        Picker("Repeat", selection: $repeatRule) {
+                            ForEach(repeatOptions, id: \.0) { option in
+                                Text(option.1).tag(option.0)
+                            }
+                        }
+                        .pickerStyle(.menu)
+                        .padding(16)
+
+                        Divider()
+                            .padding(.leading, 16)
+
+                        Toggle("Add time", isOn: $includeTime)
+                            .padding(16)
+
+                        if includeTime {
+                            Divider()
+                                .padding(.leading, 16)
+
+                            DatePicker(
+                                "Time",
+                                selection: $time,
+                                displayedComponents: .hourAndMinute
+                            )
+                            .datePickerStyle(.compact)
+                            .padding(16)
+                        }
+                    }
+                    .background(Color.white, in: RoundedRectangle(cornerRadius: 18))
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 18)
+                            .stroke(Color("brown").opacity(0.18), lineWidth: 1)
+                    }
+                    .shadow(color: .black.opacity(0.08), radius: 12, x: 0, y: 5)
+                    .padding(.horizontal, 20)
+                    .padding(.top, 24)
+                    .padding(.bottom, 16)
                 }
             }
-            
-            Toggle("Add time", isOn: $includeTime)
-
-            if includeTime {
-              DatePicker(
-                "Time",
-                selection: $time,
-                displayedComponents: .hourAndMinute)
+            .safeAreaInset(edge: .bottom) {
+                Button(action: saveTask) {
+                    Text(taskToEdit == nil ? "Save Task" : "Save Changes")
+                        .font(.system(size: 18, weight: .semibold, design: .rounded))
+                        .foregroundStyle(.white)
+                        .frame(maxWidth: .infinity)
+                        .frame(minHeight: 54)
+                        .background(Color("brown"), in: Capsule())
+                }
+                .buttonStyle(.plain)
+                .disabled(isTitleEmpty)
+                .opacity(isTitleEmpty ? 0.5 : 1)
+                .padding(.horizontal, 32)
+                .padding(.top, 12)
+                .padding(.bottom, 20)
             }
-
-          }
-          .scrollContentBackground(.hidden)
-          .safeAreaInset(edge: .bottom) {
-              Button(action: saveTask) {
-                  Text(taskToEdit == nil ? "Save Task" : "Save Changes")
-                      .font(.system(size: 18, weight: .semibold, design: .rounded))
-                      .foregroundStyle(.white)
-                      .frame(maxWidth: .infinity)
-                      .frame(minHeight: 54)
-                      .background(Color("brown"), in: Capsule())
-              }
-              .buttonStyle(.plain)
-              .disabled(isTitleEmpty)
-              .opacity(isTitleEmpty ? 0.5 : 1)
-              .padding(.horizontal, 32)
-              .padding(.top, 12)
-              .padding(.bottom, 20)
-              .background(Color("background"))
-          }
-          .background(Color("background"))
-          .navigationTitle(taskToEdit == nil ? "Add Task" : "Edit Task")
-          .navigationBarTitleDisplayMode(.inline)
-          .tint(Color("brown"))
-          .alert("Couldn't save task", isPresented: $showingSaveError) {
-              Button("OK", role: .cancel) { }
-          } message: {
-              Text("Your task hasn't been saved. Please try again.")
-          }
+            .navigationTitle(taskToEdit == nil ? "Add Task" : "Edit Task")
+            .navigationBarTitleDisplayMode(.inline)
+            .tint(Color("brown"))
+            .alert("Couldn't save task", isPresented: $showingSaveError) {
+                Button("OK", role: .cancel) { }
+            } message: {
+                Text("Your task hasn't been saved. Please try again.")
+            }
         }
     }
 

@@ -16,43 +16,72 @@ struct SettingsView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                Color("background").ignoresSafeArea()
 
-                Form {
-                    Section("Appearance") {
-                        SettingsRow(title: "Theme", subtitle: "Light", symbol: "sun.max.fill")
-                        SettingsRow(title: "App Icon", subtitle: "Default", symbol: "app.fill")
-                    }
+                ScrollView {
+                    VStack(spacing: 20) {
+                        SettingsGroupCard(title: "Appearance") {
+                            VStack(spacing: 0) {
+                                SettingsRow(title: "Theme", subtitle: "Light", symbol: "sun.max.fill")
+                                    .padding(.horizontal, 16)
+                                    .padding(.vertical, 8)
 
-                    Section("Notifications") {
-                        SettingsToggleRow(
-                            title: "Reminders",
-                            subtitle: "1 hour before timed tasks; 8:00 AM without a time",
-                            symbol: "bell",
-                            isOn: $taskRemindersEnabled
-                        )
-                        SettingsToggleRow(
-                            title: "Goals",
-                            subtitle: "A gentle reminder based on each goal's period",
-                            symbol: "target",
-                            isOn: $goalRemindersEnabled
-                        )
-                    }
+                                settingsDivider
 
-                    Section("About") {
-                        SettingsRow(title: "Version", subtitle: appVersion, symbol: "info.circle")
-                        SettingsRow(
-                            title: "Send Feedback",
-                            subtitle: "Share your thoughts",
-                            symbol: "bubble.left"
-                        )
+                                SettingsRow(title: "App Icon", subtitle: "Default", symbol: "app.fill")
+                                    .padding(.horizontal, 16)
+                                    .padding(.vertical, 8)
+                            }
+                        }
+
+                        SettingsGroupCard(title: "Notifications") {
+                            VStack(spacing: 0) {
+                                SettingsToggleRow(
+                                    title: "Reminders",
+                                    subtitle: "1 hour before timed tasks; 8:00 AM without a time",
+                                    symbol: "bell",
+                                    isOn: $taskRemindersEnabled
+                                )
+                                .padding(.horizontal, 16)
+                                .padding(.vertical, 8)
+
+                                settingsDivider
+
+                                SettingsToggleRow(
+                                    title: "Goals",
+                                    subtitle: "A gentle reminder based on each goal's period",
+                                    symbol: "target",
+                                    isOn: $goalRemindersEnabled
+                                )
+                                .padding(.horizontal, 16)
+                                .padding(.vertical, 8)
+                            }
+                        }
+
+                        SettingsGroupCard(title: "About") {
+                            VStack(spacing: 0) {
+                                SettingsRow(title: "Version", subtitle: appVersion, symbol: "info.circle")
+                                    .padding(.horizontal, 16)
+                                    .padding(.vertical, 8)
+
+                                settingsDivider
+
+                                SettingsRow(
+                                    title: "Send Feedback",
+                                    subtitle: "Share your thoughts",
+                                    symbol: "bubble.left"
+                                )
+                                .padding(.horizontal, 16)
+                                .padding(.vertical, 8)
+                            }
+                        }
                     }
+                    .padding(.horizontal, 20)
+                    .padding(.top, 20)
+                    .padding(.bottom, 24)
                 }
-                .scrollContentBackground(.hidden)
             }
             .navigationTitle("Settings")
             .navigationBarTitleDisplayMode(.inline)
-            .toolbarBackground(Color("background"), for: .navigationBar)
             .toolbarBackground(.visible, for: .navigationBar)
             .tint(Color("brown"))
             .onChange(of: taskRemindersEnabled) { _, _ in
@@ -76,6 +105,12 @@ struct SettingsView: View {
                 Text("Allow notifications for Bears Up in iPhone Settings to receive task and goal reminders.")
             }
         }
+    }
+
+    private var settingsDivider: some View {
+        Divider()
+            .padding(.leading, 60)
+            .padding(.trailing, 16)
     }
 
     @MainActor
@@ -106,6 +141,34 @@ struct SettingsView: View {
             tasksEnabled: taskRemindersEnabled,
             goalsEnabled: goalRemindersEnabled
         )
+    }
+}
+
+private struct SettingsGroupCard<Content: View>: View {
+    let title: String
+    let content: Content
+
+    init(title: String, @ViewBuilder content: () -> Content) {
+        self.title = title
+        self.content = content()
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(title)
+                .font(.headline)
+                .padding(.horizontal, 4)
+
+            content
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(Color.white, in: RoundedRectangle(cornerRadius: 18))
+                .overlay {
+                    RoundedRectangle(cornerRadius: 18)
+                        .stroke(Color("brown").opacity(0.18), lineWidth: 1)
+                }
+                .shadow(color: .black.opacity(0.08), radius: 12, x: 0, y: 5)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
 
