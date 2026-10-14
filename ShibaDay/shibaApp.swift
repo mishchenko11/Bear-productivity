@@ -9,7 +9,7 @@ import SwiftUI
 import SwiftData
 
 @main
-struct bearsApp: App {
+struct shibaApp: App {
     @AppStorage("hasCompletedWelcome")
     private var hasCompletedWelcome = false
     @AppStorage("taskRemindersEnabled")

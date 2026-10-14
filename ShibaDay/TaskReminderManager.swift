@@ -4,8 +4,8 @@ import UserNotifications
 
 @MainActor
 enum TaskReminderManager {
-    private static let taskIdentifierPrefix = "bearsapp.task-reminder."
-    private static let goalIdentifierPrefix = "bearsapp.goal-reminder."
+    private static let taskIdentifierPrefix = "shibaapp.task-reminder."
+    private static let goalIdentifierPrefix = "shibaapp.goal-reminder."
     private static let maximumPendingReminders = 64
     private static let dateOnlyTaskReminderHour = 8
     private static let timedTaskReminderLeadMinutes = 60
