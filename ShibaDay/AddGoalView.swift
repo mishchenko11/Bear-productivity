@@ -1,5 +1,6 @@
 import SwiftUI
 import SwiftData
+import UIKit
 
 struct AddGoalView: View {
     @Environment(\.modelContext) private var modelContext
@@ -28,7 +29,7 @@ struct AddGoalView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                Color.white.ignoresSafeArea()
+                Color(uiColor: .systemBackground).ignoresSafeArea()
 
                 ScrollView {
                     VStack(spacing: 0) {
@@ -52,7 +53,7 @@ struct AddGoalView: View {
                         .pickerStyle(.menu)
                         .padding(16)
                     }
-                    .background(Color.white, in: RoundedRectangle(cornerRadius: 18))
+                    .background(Color(uiColor: .secondarySystemBackground), in: RoundedRectangle(cornerRadius: 18))
                     .overlay {
                         RoundedRectangle(cornerRadius: 18)
                             .stroke(Color("brown").opacity(0.18), lineWidth: 1)

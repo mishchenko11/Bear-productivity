@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import UIKit
 
 struct AddTaskView: View {
     @Environment(\.modelContext) private var modelContext
@@ -44,7 +45,7 @@ struct AddTaskView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                Color.white.ignoresSafeArea()
+                Color(uiColor: .systemBackground).ignoresSafeArea()
 
                 ScrollView {
                     VStack(spacing: 0) {
@@ -92,7 +93,7 @@ struct AddTaskView: View {
                             .padding(16)
                         }
                     }
-                    .background(Color.white, in: RoundedRectangle(cornerRadius: 18))
+                    .background(Color(uiColor: .secondarySystemBackground), in: RoundedRectangle(cornerRadius: 18))
                     .overlay {
                         RoundedRectangle(cornerRadius: 18)
                             .stroke(Color("brown").opacity(0.18), lineWidth: 1)

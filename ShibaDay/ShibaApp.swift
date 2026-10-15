@@ -17,7 +17,10 @@ struct shibaApp: App {
     @AppStorage("goalRemindersEnabled")
     private var goalRemindersEnabled = false
     @Environment(\.scenePhase) private var scenePhase
-    
+
+    @AppStorage("appTheme")
+    private var appTheme: AppAppearance = .system
+
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
             TaskItem.self,
@@ -35,22 +38,25 @@ struct shibaApp: App {
 
     var body: some Scene {
         WindowGroup {
-            if hasCompletedWelcome {
-                ContentView()
-                    .task {
-                        await refreshReminders()
-                    }
-                    .onChange(of: scenePhase) { _, phase in
-                        guard phase == .active else { return }
-                        Task {
+            Group {
+                if hasCompletedWelcome {
+                    ContentView()
+                        .task {
                             await refreshReminders()
                         }
+                        .onChange(of: scenePhase) { _, phase in
+                            guard phase == .active else { return }
+                            Task {
+                                await refreshReminders()
+                            }
+                        }
+                } else {
+                    WelcomeView {
+                        hasCompletedWelcome = true
                     }
-            } else {
-                WelcomeView {
-                    hasCompletedWelcome = true
                 }
             }
+            .preferredColorScheme(appTheme.colorScheme)
         }
         .modelContainer(sharedModelContainer)
     }

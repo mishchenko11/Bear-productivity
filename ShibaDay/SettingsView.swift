@@ -5,6 +5,7 @@ import UIKit
 struct SettingsView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.openURL) private var openURL
+    @AppStorage("appTheme") private var appTheme: AppAppearance = .system
     @AppStorage("taskRemindersEnabled") private var taskRemindersEnabled = false
     @AppStorage("goalRemindersEnabled") private var goalRemindersEnabled = false
     @State private var showingNotificationPermissionAlert = false
@@ -21,9 +22,19 @@ struct SettingsView: View {
                     VStack(spacing: 20) {
                         SettingsGroupCard(title: "Appearance") {
                             VStack(spacing: 0) {
-                                SettingsRow(title: "Theme", subtitle: "Light", symbol: "sun.max.fill")
+                                NavigationLink {
+                                    AppearanceSettingsView(selection: $appTheme)
+                                } label: {
+                                    SettingsRow(
+                                        title: "Theme",
+                                        subtitle: appTheme.rawValue,
+                                        symbol: appTheme.symbol,
+                                        showsChevron: true
+                                    )
                                     .padding(.horizontal, 16)
                                     .padding(.vertical, 8)
+                                }
+                                .buttonStyle(.plain)
 
                                 settingsDivider
 
@@ -161,7 +172,7 @@ private struct SettingsGroupCard<Content: View>: View {
 
             content
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .background(Color.white, in: RoundedRectangle(cornerRadius: 18))
+                .background(Color(uiColor: .secondarySystemBackground), in: RoundedRectangle(cornerRadius: 18))
                 .overlay {
                     RoundedRectangle(cornerRadius: 18)
                         .stroke(Color("brown").opacity(0.18), lineWidth: 1)
@@ -176,6 +187,7 @@ private struct SettingsRow: View {
     let title: String
     let subtitle: String
     let symbol: String
+    var showsChevron = false
 
     var body: some View {
         HStack(spacing: 14) {
@@ -192,6 +204,12 @@ private struct SettingsRow: View {
                     .foregroundStyle(.secondary)
             }
             Spacer(minLength: 0)
+
+            if showsChevron {
+                Image(systemName: "chevron.right")
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(.tertiary)
+            }
         }
         .padding(.vertical, 4)
     }

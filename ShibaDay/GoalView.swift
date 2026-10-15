@@ -1,5 +1,6 @@
 import SwiftUI
 import SwiftData
+import UIKit
 
 struct GoalView: View {
     @Environment(\.modelContext) private var modelContext
@@ -139,7 +140,7 @@ struct GoalView: View {
                 .foregroundStyle(isSelected ? Color("brown") : Color.primary)
                 .frame(maxWidth: .infinity)
                 .frame(height: 48)
-                .background(isSelected ? Color.white : Color.clear, in: Capsule())
+                .background(isSelected ? Color(uiColor: .secondarySystemBackground) : Color.clear, in: Capsule())
                 .contentShape(Capsule())
         }
         .buttonStyle(.plain)
